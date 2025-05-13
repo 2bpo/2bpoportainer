@@ -5,9 +5,9 @@ services:
     image: alpine
     volumes:
       - ./site:/app:ro
+    command: sleep infinity
     labels:
       - "traefik.enable=false"
-    command: sleep infinity  # Mantém o container ativo para o init copiar os arquivos
 
   init:
     image: alpine
@@ -23,12 +23,10 @@ services:
 
   site:
     image: nginx:alpine
-    container_name: site-2bpo
-    restart: always
     volumes:
       - site-2bpo-volume:/usr/share/nginx/html:ro
     networks:
-      - web
+      - network_public
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.site-estatico.rule=Host(`mkt.2bpo.com.br`)"
@@ -41,5 +39,5 @@ volumes:
   site-2bpo-volume:
 
 networks:
-  web:
+  network_public:
     external: true
