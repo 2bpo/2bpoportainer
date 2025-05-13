@@ -25,7 +25,7 @@ services:
     container_name: site-2bpo
     restart: always
     volumes:
-      - site-volume:/usr/share/nginx/html:ro
+      - site-2bpo-volume:/usr/share/nginx/html:ro
     networks:
       - web
     labels:
