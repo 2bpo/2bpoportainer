@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  init:
+    image: alpine
+    volumes:
+      - site-2bpo-volume:/target
+    working_dir: /app
+    command: sh -c "cp -r . /target"
+    labels:
+      - "traefik.enable=false"
+    # Monta os arquivos do repositório Git como bind
+    volumes_from:
+      - gitfiles
+
+  gitfiles:
+    image: alpine
+    volumes:
+      - ./site:/app:ro
+    labels:
+      - "traefik.enable=false"
+
+  site:
+    image: nginx:alpine
+    container_name: site-2bpo
+    restart: always
+    volumes:
+      - site-volume:/usr/share/nginx/html:ro
+    networks:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.site-estatico.rule=Host(`mkt.2bpo.com.br`)"
+      - "traefik.http.routers.site-estatico.entrypoints=websecure"
+      - "traefik.http.routers.site-estatico.tls=true"
+      - "traefik.http.routers.site-estatico.tls.certresolver=letsencrypt"
+      - "traefik.http.services.site-estatico.loadbalancer.server.port=80"
+
+volumes:
+  site-2bpo-volume:
+
+networks:
+  web:
+    external: true
