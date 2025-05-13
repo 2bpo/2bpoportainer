@@ -1,21 +1,22 @@
 version: "3.9"
 
 services:
-  init:
-    image: alpine
-    volumes:
-      - site-2bpo-volume:/target
-    working_dir: /app
-    command: sh -c "cp -r . /target"
-    labels:
-      - "traefik.enable=false"
-    # Monta os arquivos do repositório Git como bind
-    volumes_from:
-      - gitfiles
-
   gitfiles:
     image: alpine
     volumes:
+      - ./site:/app:ro
+    labels:
+      - "traefik.enable=false"
+    command: sleep infinity  # Mantém o container ativo para o init copiar os arquivos
+
+  init:
+    image: alpine
+    depends_on:
+      - gitfiles
+    working_dir: /app
+    command: sh -c "cp -r /app/* /target/"
+    volumes:
+      - site-2bpo-volume:/target
       - ./site:/app:ro
     labels:
       - "traefik.enable=false"
